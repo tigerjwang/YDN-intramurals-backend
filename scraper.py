@@ -73,7 +73,13 @@ def main():
 
     sheet = service.spreadsheets()
 
+    scrape_standings(sheet, "overall")
     scrape_standings(sheet, "WHoops")
+    scrape_standings(sheet, "MHoops")
+    scrape_standings(sheet, "BHoops")
+    scrape_standings(sheet, "CHoops")
+    scrape_standings(sheet, "Volleyball")
+    scrape_standings(sheet, "Dodgeball")
 
 
 if __name__ == '__main__':
