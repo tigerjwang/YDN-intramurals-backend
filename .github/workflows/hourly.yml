@@ -21,4 +21,6 @@ jobs:
         pip install flake8 pytest
         if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
     - name: Run scraper
-      run: python scraper.py
+      run: python scraper.py $API_TOKEN
+      env: 
+        API_TOKEN: ${{ secrets.GOOGLE_API_TOKEN }}
