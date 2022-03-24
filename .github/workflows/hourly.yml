@@ -22,3 +22,9 @@ jobs:
         if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
     - name: Run scraper
       run: python scraper.py $API_TOKEN
+    - name: Commit CSVs
+      run: |
+        git config --global user.name 'Bot'
+        git config --global user.email 'tigerjwang@users.noreply.github.com'
+        git commit -am "(Bot) Run scraper"
+        git push
