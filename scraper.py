@@ -1,8 +1,8 @@
 from __future__ import print_function
 
 import csv
-import sys
 import os.path
+import sys
 
 from google.auth.transport.requests import Request
 from google.oauth2.credentials import Credentials
@@ -14,6 +14,23 @@ SCOPES = ['https://www.googleapis.com/auth/spreadsheets.readonly']
 STANDINGS_SPREADSHEET_ID = '1xffq-cDUbEzLkenPLQDPCz9U9qfUWMqPBDUUHg-Ak0Y'
 
 DEBUG = True
+
+COLLEGE_NAME = {
+    "SY": "Saybrook",
+    "MY": "Pauli Murray",
+    "TD": "Timothy Dwight",
+    "MC": "Morse",
+    "GH": "Grace Hopper",
+    "BF": "Benjamin Franklin",
+    "DC": "Davenport",
+    "ES": "Ezra Stiles",
+    "TC": "Trumbull",
+    "PC": "Pierson",
+    "SM": "Silliman",
+    "BK": "Berkeley",
+    "BR": "Branford",
+    "JE": "Jonathan Edwards",
+}
 
 def scrape_standings(sheet, sheet_name):
     college_column = {
@@ -57,11 +74,12 @@ def scrape_standings(sheet, sheet_name):
             writer = csv.DictWriter(csvfile, fieldnames=fieldnames)
             writer.writeheader()
             for i in range(row_end - row_start + 1):
-                writer.writerow({'college': college_result[i][0], 'score': score_result[i][0]})
+                college_abbreviated = college_result[i][0]
+                college_name = COLLEGE_NAME[college_abbreviated]
+                writer.writerow({'college': college_name, 'score': score_result[i][0]})
     else:
         print('No data found on college or score column.')
-    
-    
+
 
 def main():
     if (len(sys.argv) != 2):
