@@ -17,11 +17,12 @@ Spreadsheet = namedtuple('Spreadsheet', 'id year season')
 SPREADSHEETS = [
     Spreadsheet('1xffq-cDUbEzLkenPLQDPCz9U9qfUWMqPBDUUHg-Ak0Y', 2021, 'winter'),
     Spreadsheet('1wLYwmOjzGjFvZInKKpCGcqNerMzU8VzE5cxskipAudw', 2021, 'fall'),
+    Spreadsheet('19V_NTYYFbBQXVFJumDHMaF9OQUUC9ZbQxyZJnUQBQ9U', 2022, 'spring'),
 ]
 SHEET_NAMES = {
     'winter': ['overall', 'WHoops', 'MHoops', 'BHoops', 'CHoops', 'Volleyball', 'Dodgeball'],
     'fall': ['overall', 'spikeball', 'corn', 'tabletennis', 'pickle', 'kan', 'football', 'soccer'],
-    'spring': [],
+    'spring': ['overall', 'IndoorSoccer', 'KanJam', 'Kickball', 'Badminton'],
 }
 
 DEBUG = True
@@ -61,6 +62,11 @@ def scrape_standings(sheet, spreadsheet, sheet_name):
         'kan': 'F',
         'football': 'F',
         'soccer': 'F',
+
+        'IndoorSoccer': 'F',
+        'KanJam': 'F',
+        'Kickball': 'F',
+        'Badminton': 'F',
     }
     score_column = {
         'overall': 'J',
@@ -78,6 +84,11 @@ def scrape_standings(sheet, spreadsheet, sheet_name):
         'kan': 'J',
         'football': 'J',
         'soccer': 'J',
+
+        'IndoorSoccer': 'K',
+        'KanJam': 'J',
+        'Kickball': 'J',
+        'Badminton': 'J',
     }
     row_start = 2
     row_end = 15
