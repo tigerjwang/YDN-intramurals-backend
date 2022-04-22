@@ -1,4 +1,5 @@
 from __future__ import print_function
+from collections import namedtuple
 
 import csv
 import os.path
@@ -11,45 +12,72 @@ from googleapiclient.discovery import build
 from googleapiclient.errors import HttpError
 
 SCOPES = ['https://www.googleapis.com/auth/spreadsheets.readonly']
-STANDINGS_SPREADSHEET_ID = '1xffq-cDUbEzLkenPLQDPCz9U9qfUWMqPBDUUHg-Ak0Y'
+
+Spreadsheet = namedtuple('Spreadsheet', 'id year season')
+SPREADSHEETS = [
+    Spreadsheet('1xffq-cDUbEzLkenPLQDPCz9U9qfUWMqPBDUUHg-Ak0Y', 2021, 'winter'),
+    Spreadsheet('1wLYwmOjzGjFvZInKKpCGcqNerMzU8VzE5cxskipAudw', 2021, 'fall'),
+]
+SHEET_NAMES = {
+    'winter': ['overall', 'WHoops', 'MHoops', 'BHoops', 'CHoops', 'Volleyball', 'Dodgeball'],
+    'fall': ['overall', 'spikeball', 'corn', 'tabletennis', 'pickle', 'kan', 'football', 'soccer'],
+    'spring': [],
+}
 
 DEBUG = True
 
 COLLEGE_NAME = {
-    "SY": "Saybrook",
-    "MY": "Pauli Murray",
-    "TD": "Timothy Dwight",
-    "MC": "Morse",
-    "GH": "Grace Hopper",
-    "BF": "Benjamin Franklin",
-    "DC": "Davenport",
-    "ES": "Ezra Stiles",
-    "TC": "Trumbull",
-    "PC": "Pierson",
-    "SM": "Silliman",
-    "BK": "Berkeley",
-    "BR": "Branford",
-    "JE": "Jonathan Edwards",
+    'SY': 'Saybrook',
+    'MY': 'Pauli Murray',
+    'TD': 'Timothy Dwight',
+    'MC': 'Morse',
+    'GH': 'Grace Hopper',
+    'BF': 'Benjamin Franklin',
+    'DC': 'Davenport',
+    'ES': 'Ezra Stiles',
+    'TC': 'Trumbull',
+    'PC': 'Pierson',
+    'SM': 'Silliman',
+    'BK': 'Berkeley',
+    'BR': 'Branford',
+    'JE': 'Jonathan Edwards',
 }
 
-def scrape_standings(sheet, sheet_name):
+def scrape_standings(sheet, spreadsheet, sheet_name):
+    if DEBUG: print('running scraper for', spreadsheet.year, spreadsheet.season, sheet_name)
     college_column = {
-        "overall": "A",
-        "WHoops": "F",
-        "MHoops": "F",
-        "BHoops": "F",
-        "CHoops": "F",
-        "Volleyball": "F",
-        "Dodgeball": "F"
+        'overall': 'A',
+        'WHoops': 'F',
+        'MHoops': 'F',
+        'BHoops': 'F',
+        'CHoops': 'F',
+        'Volleyball': 'F',
+        'Dodgeball': 'F',
+
+        'spikeball': 'F',
+        'corn': "F",
+        'tabletennis': 'F',
+        'pickle': 'F',
+        'kan': 'F',
+        'football': 'F',
+        'soccer': 'F',
     }
     score_column = {
-        "overall": "J",
-        "WHoops": "K",
-        "MHoops": "J",
-        "BHoops": "J",
-        "CHoops": "J",
-        "Volleyball": "J",
-        "Dodgeball": "J"
+        'overall': 'J',
+        'WHoops': 'K',
+        'MHoops': 'J',
+        'BHoops': 'J',
+        'CHoops': 'J',
+        'Volleyball': 'J',
+        'Dodgeball': 'J',
+
+        'spikeball': 'K',
+        'corn': "J",
+        'tabletennis': 'J',
+        'pickle': 'J',
+        'kan': 'J',
+        'football': 'J',
+        'soccer': 'J',
     }
     row_start = 2
     row_end = 15
@@ -58,32 +86,40 @@ def scrape_standings(sheet, sheet_name):
 
     # Invoke Google Sheets API
     try:
-        college_result = sheet.values().get(spreadsheetId=STANDINGS_SPREADSHEET_ID,
+        college_result = sheet.values().get(spreadsheetId=spreadsheet.id,
                                             range=college_range).execute().get('values', [])
-        score_result = sheet.values().get(spreadsheetId=STANDINGS_SPREADSHEET_ID,
+        score_result = sheet.values().get(spreadsheetId=spreadsheet.id,
                                             range=score_range).execute().get('values', [])
     except HttpError as err:
         print(err)
     
-    # Output results to CSV
     if college_result and score_result:
-        if DEBUG: print("college_result:", college_result)
-        if DEBUG: print("score_result:", score_result)
-        with open(f'standings_{sheet_name.lower()}.csv', 'w', newline='') as csvfile:
+        if DEBUG: print('college_result:', college_result)
+        if DEBUG: print('score_result:', score_result)
+
+        result = []
+        for i in range(row_end - row_start + 1):
+            college_abbreviated = college_result[i][0]
+            college_name = COLLEGE_NAME[college_abbreviated]
+            result.append({'college': college_name, 'score': score_result[i][0]})
+        
+        # Sort results
+        result.sort(reverse=True, key=lambda entry: float(entry['score']))
+
+        # Output results to CSV
+        with open(f'standings_{sheet_name.lower()}_{spreadsheet.year}_{spreadsheet.season}.csv', 'w', newline='') as csvfile:
             fieldnames = ['college', 'score']
             writer = csv.DictWriter(csvfile, fieldnames=fieldnames)
             writer.writeheader()
             for i in range(row_end - row_start + 1):
-                college_abbreviated = college_result[i][0]
-                college_name = COLLEGE_NAME[college_abbreviated]
-                writer.writerow({'college': college_name, 'score': score_result[i][0]})
+                writer.writerow({'college': result[i]['college'], 'score': result[i]['score']})
     else:
         print('No data found on college or score column.')
 
 
 def main():
     if (len(sys.argv) != 2):
-        print("Usage: ./scraper API_KEY")
+        print('Usage: ./scraper API_KEY')
         return
 
     api_key = sys.argv[1]
@@ -91,13 +127,9 @@ def main():
 
     sheet = service.spreadsheets()
 
-    scrape_standings(sheet, "overall")
-    scrape_standings(sheet, "WHoops")
-    scrape_standings(sheet, "MHoops")
-    scrape_standings(sheet, "BHoops")
-    scrape_standings(sheet, "CHoops")
-    scrape_standings(sheet, "Volleyball")
-    scrape_standings(sheet, "Dodgeball")
+    for spreadsheet in SPREADSHEETS:
+        for sheet_name in SHEET_NAMES[spreadsheet.season]:
+            scrape_standings(sheet, spreadsheet, sheet_name)
 
 
 if __name__ == '__main__':
