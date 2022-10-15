@@ -1,5 +1,7 @@
 # Backend for YDN Intramurals Page
 
-## Installation
-pip install --upgrade google-api-python-client google-auth-httplib2 google-auth-oauthlib
+## Installing dependencies
+`pip install -r requirements.txt`
 
+## Running locally
+`python scraper.py [YOUR_API_TOKEN]` (replace `[YOUR_API_TOKEN]`)
