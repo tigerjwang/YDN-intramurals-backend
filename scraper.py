@@ -15,9 +15,7 @@ SCOPES = ['https://www.googleapis.com/auth/spreadsheets.readonly']
 
 Spreadsheet = namedtuple('Spreadsheet', 'id year season')
 SPREADSHEETS = [
-    Spreadsheet('1xffq-cDUbEzLkenPLQDPCz9U9qfUWMqPBDUUHg-Ak0Y', 2021, 'winter'),
-    Spreadsheet('1wLYwmOjzGjFvZInKKpCGcqNerMzU8VzE5cxskipAudw', 2021, 'fall'),
-    Spreadsheet('19V_NTYYFbBQXVFJumDHMaF9OQUUC9ZbQxyZJnUQBQ9U', 2022, 'spring'),
+    Spreadsheet('17GHCZpr4zVXTJRBJZssAxLsvi7OTrNWEZj5Jag_hD_k', 2022, 'fall'),
 ]
 SHEET_NAMES = {
     'winter': ['overall', 'WHoops', 'MHoops', 'BHoops', 'CHoops', 'Volleyball', 'Dodgeball'],
@@ -59,7 +57,7 @@ def scrape_standings(sheet, spreadsheet, sheet_name):
         'corn': "F",
         'tabletennis': 'F',
         'pickle': 'F',
-        'kan': 'F',
+        # 'kan': 'F',
         'football': 'F',
         'soccer': 'F',
 
@@ -69,7 +67,7 @@ def scrape_standings(sheet, spreadsheet, sheet_name):
         'Badminton': 'F',
     }
     score_column = {
-        'overall': 'J',
+        'overall': 'I',
         'WHoops': 'K',
         'MHoops': 'J',
         'BHoops': 'J',
